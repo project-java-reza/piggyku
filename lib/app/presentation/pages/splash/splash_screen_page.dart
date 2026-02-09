@@ -234,8 +234,10 @@ class _SplashScreenPageState extends State<SplashScreenPage>
             children: [
               // Gambar babi loading
               Transform.scale(
-                scaleX: 1.0 + 0.05 * math.sin(_rotationController.value * 2 * math.pi),
-                scaleY: 1.0 + 0.05 * math.sin(_rotationController.value * 2 * math.pi),
+                scaleX: 1.0 +
+                    0.05 * math.sin(_rotationController.value * 2 * math.pi),
+                scaleY: 1.0 +
+                    0.05 * math.sin(_rotationController.value * 2 * math.pi),
                 child: Image.asset(
                   'assets/images/pig-loading.png',
                   width: 150,
@@ -263,7 +265,7 @@ class _SplashScreenPageState extends State<SplashScreenPage>
                         ),
                       ],
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         '\$',
                         style: TextStyle(

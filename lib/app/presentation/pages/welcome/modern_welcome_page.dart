@@ -8,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-/// Modern futuristic welcome screen with soft aesthetic
 class ModernWelcomePage extends StatefulWidget {
   const ModernWelcomePage({super.key});
 
@@ -20,6 +19,7 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
     with TickerProviderStateMixin {
   late AnimationController _floatController;
   late AnimationController _glowController;
+  late AnimationController _pigController;
 
   @override
   void initState() {
@@ -27,18 +27,24 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
     _floatController = AnimationController(
       duration: const Duration(seconds: 4),
       vsync: this,
-    )..repeat(reverse: true);
+    )..repeat();
 
     _glowController = AnimationController(
       duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
+
+    _pigController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat();
   }
 
   @override
   void dispose() {
     _floatController.dispose();
     _glowController.dispose();
+    _pigController.dispose();
     super.dispose();
   }
 
@@ -47,89 +53,62 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
     return Scaffold(
       body: Stack(
         children: [
-          // Smooth gradient background (bagian atas saja)
+          // Background Gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFFF6EAD8), // 0% - Beige atas (splash screen)
-                  Color(0xFFFAF1E3), // 40% - Beige bawah
-                  Color(0xFFFAF1E3), // 55% - Beige bawah
-                  Color(0xFFFFFFFF), // 70% - White starts
-                  Color(0xFFFFFFFF), // 100% - White (full white for text)
+                  Color(0xFFF6EAD8),
+                  Color(0xFFFAF1E3),
+                  Color(0xFFFFFFFF),
                 ],
-                stops: [0.0, 0.4, 0.55, 0.7, 1.0],
+                stops: [0.0, 0.4, 1.0],
               ),
             ),
           ),
 
-          // SVG blob decoration (top area only)
+          // Dekorasi Lingkaran SVG - Diperbaiki agar tidak terpotong
           Positioned(
-            top: 0,
+            top: 60, // Sedikit keluar layar atas untuk estetika
             left: 0,
             right: 0,
-            height: MediaQuery.of(context).size.height * 0.5,
+            // Tinggi ditingkatkan agar lingkaran utuh terlihat
+            height: MediaQuery.of(context).size.height * 0.6,
             child: Opacity(
-              opacity: 0.7,
-              child: Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                      spreadRadius: 0,
-                    ),
-                  ],
+              opacity: 0.6,
+              child: ColorFiltered(
+                colorFilter: const ColorFilter.mode(
+                  Color(0xFF6366F1),
+                  BlendMode.modulate,
                 ),
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(
-                    sigmaX: 2,
-                    sigmaY: 2,
-                  ),
-                  child: ColorFiltered(
-                    colorFilter: ColorFilter.mode(
-                      const Color(0xFF6366F1), // Biru ungu
-                      BlendMode.modulate,
-                    ),
-                    child: SvgPicture.asset(
-                      'assets/icons/circle.svg',
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
-                    ),
-                  ),
+                child: SvgPicture.asset(
+                  'assets/icons/circle.svg',
+                  fit: BoxFit.contain, // Menggunakan contain agar gambar utuh
+                  alignment: Alignment.topCenter,
                 ),
               ),
             ),
           ),
 
-          // Content
+          // Konten Utama
           SafeArea(
             child: Column(
               children: [
-                const Spacer(),
-
-                // Center visual with floating icons
+                const SizedBox(height: 10), // Kurangi jarak atas
                 _buildCenterVisual(),
 
-                const SizedBox(height: 60),
+                const Spacer(
+                    flex:
+                        1), // Flex kecil agar teks headline tidak terdorong keluar layar
 
-                // Headline text
                 _buildHeadline(),
-
-                const SizedBox(height: 40),
-
-                // Primary CTA Button
+                const SizedBox(height: 30),
                 _buildPrimaryButton(),
-
                 const SizedBox(height: 16),
-
-                // Secondary action
                 _buildSecondaryAction(),
-
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -139,151 +118,135 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
   }
 
   Widget _buildCenterVisual() {
-    final size = MediaQuery.of(context).size;
+    const double visualAreaHeight =
+        450.0; // Tinggi ditingkatkan agar ruang gerak ke bawah lebih luas
 
     return SizedBox(
-      height: 320,
+      height: visualAreaHeight,
+      width: double.infinity,
       child: Stack(
-        alignment: Alignment.center,
+        clipBehavior: Clip.none,
         children: [
-          // Large central circle with subtle glow
-          AnimatedBuilder(
-            animation: _glowController,
-            builder: (context, child) {
-              return Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white
-                          .withOpacity(0.45 + _glowController.value * 0.15),
-                      Colors.white.withOpacity(0.2),
-                      Colors.transparent,
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.35),
-                      blurRadius: 35 + _glowController.value * 15,
-                      spreadRadius: 8,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-
-          // Ethereum-style stacked logo (center)
-          Container(
-            width: 85,
-            height: 85,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.95),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.8),
-                width: 2,
+          // --- KARAKTER BABI (PIG) DITURUNKAN ---
+          Positioned(
+            top:
+                160, // Mengatur Pig agar lebih turun (sebelumnya di tengah/atas)
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  _buildGlowEffect(),
+                  _buildPigCharacter(),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 25,
-                  offset: const Offset(0, 12),
-                ),
-              ],
             ),
-            child: const _EthereumLogo(),
           ),
 
-          // Floating crypto/finance themed icons - each with unique position
-          // Top-left area
+          // --- IKON-IKON ---
+
+          // Dollar (Kanan - Sangat Bawah)
           _buildFloatingIcon(
-            size: size,
-            percentX: 0.15, // 15% from left
-            percentY: 0.08, // 8% from top
-            icon: Icons.currency_bitcoin,
+            containerHeight: visualAreaHeight,
+            percentX: 0.78,
+            percentY: 0.70, // Nilai besar agar sangat bawah
+            icon: Icons.attach_money_rounded,
             iconColor: const Color(0xFFF7931A),
-            animOffset: 0.0,
-          ),
-
-          // Top-right area
-          _buildFloatingIcon(
-            size: size,
-            percentX: 0.82, // 82% from left (18% from right)
-            percentY: 0.10, // 10% from top
-            icon: Icons.local_fire_department,
-            iconColor: const Color(0xFFFF6B6B),
-            animOffset: 0.5,
-          ),
-
-          // Right-middle area
-          _buildFloatingIcon(
-            size: size,
-            percentX: 0.88, // 88% from left
-            percentY: 0.28, // 28% from top
-            icon: Icons.swap_horiz,
-            iconColor: const Color(0xFF4ECDC4),
-            animOffset: 1.0,
-          ),
-
-          // Bottom-right area
-          _buildFloatingIcon(
-            size: size,
-            percentX: 0.75, // 75% from left
-            percentY: 0.40, // 40% from top
-            icon: Icons.trending_up,
-            iconColor: const Color(0xFF95E1D3),
             animOffset: 1.5,
           ),
 
-          // Left-middle area
+          // Payments (Kanan - Tengah)
           _buildFloatingIcon(
-            size: size,
-            percentX: 0.08, // 8% from left
-            percentY: 0.22, // 22% from top
-            icon: Icons.account_balance_wallet,
+            containerHeight: visualAreaHeight,
+            percentX: 0.82,
+            percentY: 0.25,
+            icon: Icons.payments_rounded,
+            iconColor: const Color(0xFF4CAF50),
+            animOffset: 4.5,
+          ),
+
+          // Pie Chart (Tengah - Paling Bawah, di bawah Pig)
+          _buildFloatingIcon(
+            containerHeight: visualAreaHeight,
+            percentX: 0.5,
+            percentY: 0.85, // Hampir di dasar area visual
+            icon: Icons.pie_chart_rounded,
+            iconColor: const Color(0xFF6366F1),
+            animOffset: 2.2,
+          ),
+
+          // Wallet (Kiri - Tengah)
+          _buildFloatingIcon(
+            containerHeight: visualAreaHeight,
+            percentX: 0.18,
+            percentY: 0.25,
+            icon: Icons.account_balance_wallet_rounded,
             iconColor: const Color(0xFFF38181),
-            animOffset: 2.0,
+            animOffset: 0.0,
           ),
 
-          // Bottom-left area
+          // Coin (Kiri - Bawah)
           _buildFloatingIcon(
-            size: size,
-            percentX: 0.18, // 18% from left
-            percentY: 0.38, // 38% from top
-            icon: Icons.analytics_outlined,
-            iconColor: const Color(0xFFA8E6CF),
-            animOffset: 2.5,
-          ),
-
-          // Far-right area
-          _buildFloatingIcon(
-            size: size,
-            percentX: 0.92, // 92% from left
-            percentY: 0.18, // 18% from top
-            icon: Icons.credit_card,
-            iconColor: const Color(0xFFDDA0DD),
+            containerHeight: visualAreaHeight,
+            percentX: 0.20,
+            percentY: 0.80,
+            icon: Icons.monetization_on_rounded,
+            iconColor: const Color(0xFFFFD700),
             animOffset: 3.0,
-          ),
-
-          // Far-left area
-          _buildFloatingIcon(
-            size: size,
-            percentX: 0.05, // 5% from left
-            percentY: 0.32, // 32% from top
-            icon: Icons.diamond,
-            iconColor: const Color(0xFFB4C5E4),
-            animOffset: 3.5,
           ),
         ],
       ),
     );
   }
 
+  Widget _buildGlowEffect() {
+    return AnimatedBuilder(
+      animation: _glowController,
+      builder: (context, child) {
+        return Container(
+          width: 140,
+          height: 140,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                Colors.white.withOpacity(0.5 + _glowController.value * 0.2),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPigCharacter() {
+    return Container(
+      width: 135,
+      height: 135,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: CustomPaint(
+          painter: PigCoolPainter(progress: _pigController.value),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFloatingIcon({
-    required Size size,
+    required double containerHeight,
     required double percentX,
     required double percentY,
     required IconData icon,
@@ -293,40 +256,27 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
     return AnimatedBuilder(
       animation: _floatController,
       builder: (context, child) {
-        // Add subtle floating animation - unique for each icon
-        final floatOffset =
-            math.sin((animOffset) + _floatController.value * math.pi * 2) * 5;
-
-        // Calculate position based on screen percentage
-        final x = size.width * percentX;
-        final y = size.height * percentY + floatOffset;
+        final floatEffect =
+            math.sin((animOffset) + _floatController.value * math.pi * 2) * 12;
 
         return Positioned(
-          left: x,
-          top: y,
+          left: MediaQuery.of(context).size.width * percentX - 26,
+          top: containerHeight * percentY + floatEffect,
           child: Container(
-            width: 44,
-            height: 44,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.92),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.9),
-                width: 1.5,
-              ),
+              color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 22,
-            ),
+            child: Icon(icon, color: iconColor, size: 28),
           ),
         );
       },
@@ -335,14 +285,14 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
 
   Widget _buildHeadline() {
     return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32),
+      padding: EdgeInsets.symmetric(horizontal: 40),
       child: Text(
         'Ambil Alih Kendali Keuanganmu',
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w500,
-          height: 1.4,
+          fontSize: 26,
+          fontWeight: FontWeight.bold,
+          height: 1.2,
           color: Color(0xFF1A1A2E),
         ),
       ),
@@ -354,29 +304,19 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: SizedBox(
         width: double.infinity,
-        height: 56,
+        height: 60,
         child: ElevatedButton(
-          onPressed: () {
-            // Navigate to permissions setup page
-            NavigationService.pushReplacement(const PermissionsSetupPage());
-          },
+          onPressed: () =>
+              NavigationService.pushReplacement(const PermissionsSetupPage()),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF1A1A2E),
             foregroundColor: Colors.white,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             elevation: 0,
-            shadowColor: Colors.black26,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
-            ),
           ),
-          child: const Text(
-            'Yuk, Mulai',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
+          child: const Text('Yuk, Mulai',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
       ),
     );
@@ -385,25 +325,18 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
   Widget _buildSecondaryAction() {
     return TextButton(
       onPressed: () {
-        // Navigate to login page
         context.read<PermissionCubit>().completePermissionSetup();
         NavigationService.pushReplacement(const LoginPage());
       },
       child: RichText(
         text: const TextSpan(
-          style: TextStyle(
-            fontSize: 14,
-            color: Color(0xFF6B7280),
-          ),
+          style: TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
           children: [
             TextSpan(text: 'Sudah punya akun? '),
             TextSpan(
-              text: 'Masuk',
-              style: TextStyle(
-                color: Color(0xFF8B5CF6),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+                text: 'Masuk',
+                style: TextStyle(
+                    color: Color(0xFF6366F1), fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -411,240 +344,88 @@ class _ModernWelcomePageState extends State<ModernWelcomePage>
   }
 }
 
-/// Floating icon widget with animation
-class _FloatingIcon extends StatelessWidget {
-  final Animation<double> animation;
-  final double offset;
-  final double? top;
-  final double? bottom;
-  final double? left;
-  final double? right;
-  final Widget child;
+class PigCoolPainter extends CustomPainter {
+  final double progress;
+  PigCoolPainter({required this.progress});
 
-  const _FloatingIcon({
-    required this.animation,
-    required this.offset,
-    required this.child,
-    this.top,
-    this.bottom,
-    this.left,
-    this.right,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        final floatOffset =
-            math.sin((animation.value + offset) * math.pi * 2) * 8;
-        return Positioned(
-          top: top != null ? top! + floatOffset : null,
-          bottom: bottom != null ? bottom! - floatOffset : null,
-          left: left,
-          right: right,
-          child: child ?? const SizedBox(),
-        );
-      },
-      child: this.child,
-    );
-  }
-}
-
-/// Ethereum-style logo
-class _EthereumLogo extends StatelessWidget {
-  const _EthereumLogo();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(40, 40),
-      painter: _EthereumPainter(),
-    );
-  }
-}
-
-class _EthereumPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF6366F1)
-      ..style = PaintingStyle.fill;
-
-    final path = Path();
     final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
 
-    // Draw diamond shape (top part)
-    path.moveTo(center.dx, center.dy - 15);
-    path.lineTo(center.dx + 12, center.dy);
-    path.lineTo(center.dx, center.dy + 8);
-    path.lineTo(center.dx - 12, center.dy);
-    path.close();
+    const pinkBase = Color(0xFFFFB6C1);
+    const pinkBorder = Color(0xFF8B2E4E);
+    const pinkSnout = Color(0xFFF080A0);
+    const glassColor = Color(0xFF1A1A2E);
 
-    canvas.drawPath(path, paint);
-
-    // Bottom part (lines)
-    final strokePaint = Paint()
-      ..color = const Color(0xFF6366F1)
+    final borderPaint = Paint()
+      ..color = pinkBorder
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
+      ..strokeWidth = 2.5;
 
-    final bottomPath = Path();
-    bottomPath.moveTo(center.dx, center.dy + 10);
-    bottomPath.lineTo(center.dx, center.dy + 22);
-    bottomPath.moveTo(center.dx - 12, center.dy + 12);
-    bottomPath.lineTo(center.dx + 12, center.dy + 12);
-
-    canvas.drawPath(bottomPath, strokePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// Bitcoin icon
-class _BitcoinIcon extends StatelessWidget {
-  const _BitcoinIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return _IconContainer(
-      child: CustomPaint(
-        size: const Size(24, 24),
-        painter: _BitcoinPainter(),
-      ),
-    );
-  }
-}
-
-class _BitcoinPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFF7931A)
+    final fillPaint = Paint()
+      ..color = pinkBase
       ..style = PaintingStyle.fill;
 
-    final center = Offset(size.width / 2, size.height / 2);
+    // Telinga
+    Path leftEar = Path()
+      ..moveTo(center.dx - radius * 0.4, center.dy - radius * 0.5)
+      ..quadraticBezierTo(center.dx - radius * 0.7, center.dy - radius * 0.9,
+          center.dx - radius * 0.1, center.dy - radius * 0.7);
+    canvas.drawPath(leftEar, fillPaint);
+    canvas.drawPath(leftEar, borderPaint);
 
-    // Circle
-    canvas.drawCircle(center, 12, paint);
+    Path rightEar = Path()
+      ..moveTo(center.dx + radius * 0.4, center.dy - radius * 0.5)
+      ..quadraticBezierTo(center.dx + radius * 0.7, center.dy - radius * 0.9,
+          center.dx + radius * 0.1, center.dy - radius * 0.7);
+    canvas.drawPath(rightEar, fillPaint);
+    canvas.drawPath(rightEar, borderPaint);
 
-    // B symbol
-    final textPainter = TextPainter(
-      text: const TextSpan(
-        text: '₿',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(center.dx - textPainter.width / 2,
-          center.dy - textPainter.height / 2),
-    );
+    // Wajah
+    canvas.drawCircle(center, radius * 0.8, fillPaint);
+    canvas.drawCircle(center, radius * 0.8, borderPaint);
+
+    // Kacamata
+    final glassPaint = Paint()..color = glassColor;
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromCenter(
+                center:
+                    Offset(center.dx - radius * 0.35, center.dy - radius * 0.1),
+                width: radius * 0.5,
+                height: radius * 0.3),
+            const Radius.circular(6)),
+        glassPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            Rect.fromCenter(
+                center:
+                    Offset(center.dx + radius * 0.35, center.dy - radius * 0.1),
+                width: radius * 0.5,
+                height: radius * 0.3),
+            const Radius.circular(6)),
+        glassPaint);
+    canvas.drawLine(
+        Offset(center.dx - 5, center.dy - radius * 0.1),
+        Offset(center.dx + 5, center.dy - radius * 0.1),
+        Paint()
+          ..color = glassColor
+          ..strokeWidth = 3);
+
+    // Hidung
+    final snoutRect = Rect.fromCenter(
+        center: Offset(center.dx, center.dy + radius * 0.25),
+        width: radius * 0.45,
+        height: radius * 0.3);
+    canvas.drawOval(snoutRect, Paint()..color = pinkSnout);
+    canvas.drawOval(snoutRect, borderPaint..strokeWidth = 1.5);
+    canvas.drawCircle(
+        Offset(center.dx - 6, center.dy + radius * 0.25), 2.5, borderPaint);
+    canvas.drawCircle(
+        Offset(center.dx + 6, center.dy + radius * 0.25), 2.5, borderPaint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// Fire icon
-class _FireIcon extends StatelessWidget {
-  const _FireIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return _IconContainer(
-      child: Icon(
-        Icons.local_fire_department_rounded,
-        size: 24,
-        color: const Color(0xFFFF6B6B),
-      ),
-    );
-  }
-}
-
-/// Transaction icon
-class _TransactionIcon extends StatelessWidget {
-  const _TransactionIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return _IconContainer(
-      child: Icon(
-        Icons.swap_horiz_rounded,
-        size: 24,
-        color: const Color(0xFF4ECDC4),
-      ),
-    );
-  }
-}
-
-/// Chart icon
-class _ChartIcon extends StatelessWidget {
-  const _ChartIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return _IconContainer(
-      child: Icon(
-        Icons.show_chart_rounded,
-        size: 24,
-        color: const Color(0xFF95E1D3),
-      ),
-    );
-  }
-}
-
-/// Wallet icon
-class _WalletIcon extends StatelessWidget {
-  const _WalletIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return _IconContainer(
-      child: Icon(
-        Icons.account_balance_wallet_rounded,
-        size: 24,
-        color: const Color(0xFFF38181),
-      ),
-    );
-  }
-}
-
-/// Icon container with styling
-class _IconContainer extends StatelessWidget {
-  final Widget child;
-
-  const _IconContainer({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.8),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.9),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Center(child: child),
-    );
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
