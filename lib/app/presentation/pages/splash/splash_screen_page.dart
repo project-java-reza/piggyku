@@ -225,17 +225,57 @@ class _SplashScreenPageState extends State<SplashScreenPage>
 
   Widget _buildLoadingIndicator() {
     return SizedBox(
-      width: 60,
-      height: 60,
+      width: 150,
+      height: 150,
       child: AnimatedBuilder(
         animation: _rotationController,
         builder: (context, child) {
-          return Transform.rotate(
-            angle: _rotationController.value * 2 * math.pi,
-            child: CustomPaint(
-              size: const Size(60, 60),
-              painter: _CircularStrokePainter(),
-            ),
+          return Stack(
+            children: [
+              // Gambar babi loading
+              Transform.scale(
+                scaleX: 1.0 + 0.05 * math.sin(_rotationController.value * 2 * math.pi),
+                scaleY: 1.0 + 0.05 * math.sin(_rotationController.value * 2 * math.pi),
+                child: Image.asset(
+                  'assets/images/pig-loading.png',
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              // Animasi Koin Jatuh dari Atas ke Mulut
+              if (_rotationController.value < 0.85)
+                Positioned(
+                  top: (_rotationController.value * 120),
+                  left: 75 + math.sin(_rotationController.value * 10) * 10,
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.amber,
+                      border: Border.all(color: Colors.orange, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.orange.withValues(alpha: 0.5),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        '\$',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),
@@ -244,43 +284,13 @@ class _SplashScreenPageState extends State<SplashScreenPage>
 
   Widget _buildLoadingText() {
     return const Text(
-      'LOADING…',
+      'MENGUMPULKAN CUAN...',
       style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 3.0,
-        color: Color(0xFF4A5568), // Abu gelap kebiruan
+        fontSize: 16,
+        fontWeight: FontWeight.w900,
+        color: Color(0xFF8B4D60),
+        letterSpacing: 2,
       ),
     );
   }
-}
-
-// Custom painter untuk circular stroke minimalis
-class _CircularStrokePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 4;
-
-    final strokePaint = Paint()
-      ..color = const Color(0xFF4A5568) // Abu gelap kebiruan
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
-      ..strokeCap = StrokeCap.round;
-
-    // Draw circular stroke dengan gap (270 derajat)
-    const startAngle = -math.pi / 4; // Mulai dari atas
-    const sweepAngle = 3 * math.pi / 2; // 270 derajat
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepAngle,
-      false,
-      strokePaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
