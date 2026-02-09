@@ -1,7 +1,7 @@
 import 'package:finai_frontend/app/presentation/cubit/auth/auth_cubit.dart';
 import 'package:finai_frontend/app/presentation/cubit/auth/auth_state.dart';
 import 'package:finai_frontend/design/design.dart';
-import 'package:finai_frontend/core/navigation/navigation_service.dart';
+import 'package:finai_frontend/core/navigation/transitions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
               backgroundColor: Colors.green,
             ),
           );
-          NavigationService.pop();
+          Navigator.of(context).pop();
         } else if (state is AuthError) {
           // Show error message
           ScaffoldMessenger.of(context).showSnackBar(
@@ -687,7 +687,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
         GestureDetector(
           onTap: () {
-            NavigationService.pop();
+            Navigator.of(context).pop();
           },
           child: const Text(
             'Login di sini!',

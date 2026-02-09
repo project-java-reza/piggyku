@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:finai_frontend/design/design.dart';
+import 'package:finai_frontend/core/navigation/transitions.dart';
 import '../../cubit/auth/auth_cubit.dart';
 import '../../cubit/auth/auth_state.dart';
 import '../home/dashboard_page.dart';
@@ -603,7 +604,10 @@ class _LoginPageState extends State<LoginPage> {
         GestureDetector(
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const RegisterPage()),
+              FlipPageRoute(
+                child: const RegisterPage(),
+                enterFromRight: true,
+              ),
             );
           },
           child: const Text(
