@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../design/design.dart';
 
 class WhatsAppSetupPage extends StatefulWidget {
   const WhatsAppSetupPage({super.key});
@@ -92,7 +93,7 @@ class _WhatsAppSetupPageState extends State<WhatsAppSetupPage> {
             ),
             const SizedBox(height: 12),
             if (_isConnecting)
-              const CircularProgressIndicator()
+              const PigCoolLoading(size: 100)
             else
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

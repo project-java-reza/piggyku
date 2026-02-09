@@ -44,7 +44,9 @@ class _PermissionsSetupPageState extends State<PermissionsSetupPage> {
         },
         builder: (context, state) {
           if (state is PermissionLoading) {
-            return const _LoadingView();
+            return const Center(
+              child: PigCoolLoading(size: 150),
+            );
           }
 
           final notificationGranted =
@@ -81,20 +83,6 @@ class _PermissionsSetupPageState extends State<PermissionsSetupPage> {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-/// Loading view
-class _LoadingView extends StatelessWidget {
-  const _LoadingView();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
       ),
     );
   }
@@ -209,7 +197,9 @@ class _PermissionsList extends StatelessWidget {
             isGranted: notificationGranted,
             onRequest: () async {
               // Request permission
-              await context.read<PermissionCubit>().requestNotificationPermission();
+              await context
+                  .read<PermissionCubit>()
+                  .requestNotificationPermission();
 
               // Check permission status after request
               if (!context.mounted) return;
@@ -218,7 +208,8 @@ class _PermissionsList extends StatelessWidget {
               // If still denied, open app settings
               if (!context.mounted) return;
               final state = context.read<PermissionCubit>().state;
-              if (state is PermissionsLoaded && !state.notificationPermissionGranted) {
+              if (state is PermissionsLoaded &&
+                  !state.notificationPermissionGranted) {
                 await openAppSettings();
               }
             },
@@ -379,43 +370,45 @@ class _BottomActions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Tombol Utama (Desain Standar/Biasa)
           SizedBox(
             width: double.infinity,
-            height: 55, // Sedikit lebih tinggi agar nyaman ditekan
+            height: 55,
             child: ElevatedButton(
-              onPressed: allGranted
-                  ? () {
-                      context.read<PermissionCubit>().completePermissionSetup();
-                      final authCubit = context.read<AuthCubit>();
-                      if (authCubit.state is LoginSuccess) {
-                        NavigationService.pushReplacement(
-                            const DashboardPage());
-                      } else {
-                        NavigationService.pushReplacement(const LoginPage());
-                      }
-                    }
-                  : null,
+              onPressed: () {
+                if (allGranted) {
+                  // Logika Lanjutkan
+                  context.read<PermissionCubit>().completePermissionSetup();
+                  final authCubit = context.read<AuthCubit>();
+                  if (authCubit.state is LoginSuccess) {
+                    NavigationService.pushReplacement(const DashboardPage());
+                  } else {
+                    NavigationService.pushReplacement(const LoginPage());
+                  }
+                } else {
+                  // Menampilkan Tutorial
+                  _showTutorial(context);
+                }
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A1A2E), // Warna gelap standar
+                backgroundColor: const Color(0xFF1A1A2E),
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.grey[300],
-                disabledForegroundColor: Colors.grey[500],
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12), // Melengkung biasa
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 0, // Tanpa shadow berlebih agar terlihat clean
+                elevation: 0,
               ),
               child: Text(
-                allGranted ? 'Lanjutkan' : 'Berikan Semua Izin',
+                allGranted
+                    ? 'Lanjutkan'
+                    : 'Melihat Tutorial Izinkan Alarm & Pengingat',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14, // Dikecilkan sedikit agar teks panjang muat
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-
           if (!allGranted)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.md),
@@ -455,6 +448,146 @@ class _BottomActions extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showTutorial(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar di atas modal
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                "Tutorial Izin Alarm",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const Divider(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildStep(
+                      "1. Ketik Alarm & Pengingat",
+                      "assets/images/tutorial_1.jpg",
+                    ),
+                    _buildStep(
+                      "2. Pilih Alarm & Pengingat",
+                      "assets/images/tutorial_2.jpg",
+                    ),
+                    _buildStep(
+                      "3. Izinkan Menyetel Alarm & Pengingat",
+                      "assets/images/tutorial_3.jpg",
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Button di luar scrollable area
+            // Tambahkan SafeArea atau padding bawah dinamis
+            Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 16,
+                // Ini akan mengambil tinggi navigasi bar HP + margin tambahan 16
+                bottom: MediaQuery.of(context).padding.bottom + 16,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A1A2E),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Saya Mengerti",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep(String title, String imagePath) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          child: Stack(
+            children: [
+              // Efek Stabilo (Warna Primary)
+              Positioned(
+                bottom: 2, // Posisi di bagian bawah teks
+                left: 0,
+                child: Container(
+                  height: 12, // Ketebalan garis stabilo
+                  width: (title.length *
+                      9.0), // Menyesuaikan panjang teks secara kasar
+                  decoration: BoxDecoration(
+                    // Menggunakan warna orange dengan opasitas 0.3 agar teks tetap terbaca
+                    color: Colors.orange.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              // Teks Judul
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Gambar Tutorial
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[200]!, width: 1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
+      ],
     );
   }
 }
