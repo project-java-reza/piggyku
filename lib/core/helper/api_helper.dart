@@ -8,7 +8,9 @@ class ApiHelper {
 
   ApiHelper() {
     dio = Dio();
-    dio.options.baseUrl = AppConfig.environment.url;
+    // Ensure environment is properly initialized
+    final env = AppConfig.environment;
+    dio.options.baseUrl = env.url;
     dio.options.connectTimeout = AppConfig.connectTimeout;
     dio.options.receiveTimeout = AppConfig.receiveTimeout;
     dio.options.responseType = ResponseType.json;

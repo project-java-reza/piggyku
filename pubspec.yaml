@@ -1,6 +1,6 @@
 name: finai_frontend
-description: "A new Flutter project."
-publish_to: 'none' 
+description: 'A new Flutter project.'
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
@@ -11,6 +11,7 @@ dependencies:
   bloc: ^9.0.0
   built_collection: ^5.1.1
   camera: ^0.11.2
+  equatable: ^2.0.5
   convert: ^3.1.2
   dartz: ^0.10.1
   device_info_plus: ^11.3.0
@@ -21,6 +22,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   flutter_localizations:
     sdk: flutter
+  flutter_svg: ^2.0.10
   get: ^4.7.2
   get_it: ^8.0.3
   image: ^4.5.4
@@ -28,6 +30,7 @@ dependencies:
   injectable_generator: ^2.7.0
   intl: ^0.19.0
   intl_utils: ^2.8.11
+  logger: ^2.0.2+1
   navigation_history_observer: ^1.1.1
   package_info_plus: ^8.3.0
   path: ^1.9.0
@@ -36,6 +39,10 @@ dependencies:
   pretty_json: ^2.0.0
   shared_preferences: ^2.5.3
   sqflite: ^2.4.1
+  speech_to_text: ^6.6.0
+  flutter_tts: ^3.8.5
+  avatar_glow: ^2.0.2
+  audioplayers: ^6.5.1
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +52,12 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Assets configuration
+  assets:
+    - assets/images/
+    - assets/icons/
+
 flutter_intl:
   enabled: true
   output_dir: lib/core/translator
